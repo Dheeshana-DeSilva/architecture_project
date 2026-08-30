@@ -1,8 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { FiEye, FiEyeOff } from "react-icons/fi";
+import { useAuth0 } from "@auth0/auth0-react";
 import AuthService from "../../services/auth.service";
 import backgroundImg from "../../assets/background.jpg";
+
+
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -10,17 +13,53 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [oidcLoading, setOidcLoading] = useState(false);
   const navigate = useNavigate();
 
+  // Auth0 hooks
+  const { loginWithRedirect, logout: auth0Logout, isAuthenticated, getAccessTokenSilently } = useAuth0();
+
+  /**
+   * After Auth0 redirects back to the app with a successful OIDC login,
+   * exchange the access token for the app's own JWT.
+   */
+  useEffect(() => {
+    const exchangeToken = async () => {
+      if (isAuthenticated && !AuthService.getCurrentUser()) {
+        setOidcLoading(true);
+        setError("");
+        try {
+          const accessToken = await getAccessTokenSilently();
+          const data = await AuthService.oidcSignIn(accessToken);
+          const roles = Array.isArray(data.roles) ? data.roles : [];
+
+          if (roles.includes("ROLE_ADMIN")) {
+            navigate("/admin/dashboard");
+          } else if (roles.includes("ROLE_EMPLOYEE")) {
+            navigate("/employee/floor-plan");
+          } else {
+            navigate("/dashboard");
+          }
+        } catch (err) {
+          setError("Auth0 login succeeded but account setup failed. Please try again.");
+          // Clear the Auth0 session so user can retry
+          auth0Logout({ logoutParams: { returnTo: window.location.origin } });
+        } finally {
+          setOidcLoading(false);
+        }
+      }
+    };
+    exchangeToken();
+  }, [isAuthenticated, getAccessTokenSilently]);
+
+  // Local email + password login
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
-
     try {
       const data = await AuthService.login(email, password);
       const roles = Array.isArray(data.roles) ? data.roles : (data.roles || []);
-
       if (roles.includes("ROLE_ADMIN")) {
         navigate("/admin/dashboard");
       } else if (roles.includes("ROLE_EMPLOYEE")) {
@@ -35,6 +74,12 @@ const Login = () => {
       setError(resMessage);
       setLoading(false);
     }
+  };
+
+  // Trigger Auth0 OIDC redirect
+  const handleOidcLogin = () => {
+    setError("");
+    loginWithRedirect();
   };
 
   return (
@@ -53,6 +98,7 @@ const Login = () => {
 
       <div className="relative z-10 flex w-full max-w-4xl bg-white rounded-2xl shadow-2xl overflow-hidden">
 
+        {/* Left illustration */}
         <div className="relative w-1/2 min-h-[600px] hidden md:block">
           <img
             src={backgroundImg}
@@ -66,7 +112,6 @@ const Login = () => {
                 "radial-gradient(circle at center, rgba(29,78,216,0.45) 40%, rgba(30,64,175,0.15) 70%, transparent 100%)",
             }}
           ></div>
-
           <div className="relative z-10 flex flex-col justify-center h-full p-10 text-white">
             <h2 className="text-4xl font-extrabold leading-tight mb-12 drop-shadow-lg">
               Welcome to the
@@ -79,6 +124,7 @@ const Login = () => {
           </div>
         </div>
 
+        {/* Right: form panel */}
         <div className="flex items-center justify-center w-full md:w-1/2 p-8">
           <div className="w-full max-w-sm space-y-6">
 
@@ -91,11 +137,12 @@ const Login = () => {
               <div className="mt-4 w-16 h-1 bg-blue-500 mx-auto rounded-full"></div>
             </div>
 
+            {/* ── Local: email + password form ──────────────────────── */}
             <form onSubmit={handleLogin} className="space-y-4">
-
               <div>
                 <label className="block text-sm font-medium text-gray-700">Email Address</label>
                 <input
+                  id="input-email"
                   type="email"
                   placeholder="name@example.com"
                   className="w-full px-4 py-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -109,6 +156,7 @@ const Login = () => {
                 <label className="block text-sm font-medium text-gray-700">Password</label>
                 <div className="relative">
                   <input
+                    id="input-password"
                     type={showPassword ? "text" : "password"}
                     placeholder="••••••••"
                     className="w-full px-4 py-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-10"
@@ -133,6 +181,7 @@ const Login = () => {
               )}
 
               <button
+                id="btn-local-login"
                 type="submit"
                 disabled={loading}
                 className={`w-full px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors ${loading ? "opacity-70 cursor-not-allowed" : ""}`}
@@ -142,14 +191,25 @@ const Login = () => {
             </form>
 
             {/* Divider */}
-            <div className="relative flex items-center justify-center w-full mt-6 border-t border-gray-200">
+            <div className="relative flex items-center justify-center w-full border-t border-gray-200 mt-6 mb-6">
               <span className="absolute px-3 bg-white text-gray-500 text-sm">
                 OR
               </span>
             </div>
 
-            {/* Signup Link Section */}
-            <div className="text-center pt-4">
+            {/* ── OIDC: Auth0 sign-in button ────────────────────── */}
+            <button
+              id="btn-auth0-login"
+              type="button"
+              onClick={handleOidcLogin}
+              disabled={oidcLoading}
+              className="w-full flex items-center justify-center gap-3 px-4 py-2.5 border-2 border-blue-600 rounded-md text-blue-600 font-bold hover:bg-blue-50 transition disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {oidcLoading ? "Setting up your account…" : "Continue with Auth0"}
+            </button>
+
+            {/* Sign-up link */}
+            <div className="text-center pt-2">
               <p className="text-sm text-gray-600">
                 Don't have an account?{" "}
                 <Link
@@ -168,4 +228,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Login;

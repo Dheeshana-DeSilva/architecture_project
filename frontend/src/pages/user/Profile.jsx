@@ -222,7 +222,15 @@ const Profile = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {/* Email is typically read-only */}
+              {/* Username — read-only, sourced from IdP */}
+              <ProfileItem
+                icon={<UserCircleIcon className="w-5 h-5" />}
+                label="Username"
+                value={profile?.username || profile?.email}
+                readOnly={true}
+              />
+
+              {/* Email is read-only */}
               <ProfileItem
                 icon={<EnvelopeIcon className="w-5 h-5" />}
                 label="Email Address"

@@ -14,6 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 public class UserProfileResponse {
   private Long id;
+  private String username; // email used as the login username
   private String name;
   private String email;
   private String contactNumber;

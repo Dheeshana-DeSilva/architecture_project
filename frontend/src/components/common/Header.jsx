@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth0 } from "@auth0/auth0-react";
 import AuthService from "../../services/auth.service";
 import {
   UserCircleIcon,
@@ -19,9 +20,18 @@ const Header = ({ user }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+  // Auth0 OIDC — available for OIDC-authenticated users
+  const { logout: auth0Logout, isAuthenticated } = useAuth0();
+
   const handleLogout = () => {
+    // Clear the app's local JWT session
     AuthService.logout();
-    navigate("/login");
+    // If the user signed in via Auth0 OIDC, also terminate their OIDC session
+    if (isAuthenticated) {
+      auth0Logout({ logoutParams: { returnTo: window.location.origin } });
+    } else {
+      navigate("/login");
+    }
   };
 
   const handleReservationsClick = () => {

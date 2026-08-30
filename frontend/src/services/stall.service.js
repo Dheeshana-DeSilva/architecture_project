@@ -20,12 +20,23 @@ const cancelReservation = (stallId) => {
   return api.delete(`/vendor-publishers/reservations/${stallId}`);
 };
 
+// Stall Reservation Request (new vendor request form)
+const submitStallRequest = (data) => {
+  return api.post("/vendor-publishers/stall-requests", data);
+};
+
+const getMyStallRequests = () => {
+  return api.get("/vendor-publishers/stall-requests/my");
+};
+
 const StallService = {
   getAllStalls,
   reserveStalls,
   getReservationCount,
   getMyReservations,
   cancelReservation,
+  submitStallRequest,
+  getMyStallRequests,
 };
 
 export default StallService;

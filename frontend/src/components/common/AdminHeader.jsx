@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth0 } from "@auth0/auth0-react";
 import AuthService from "../../services/auth.service";
 import {
     UserCircleIcon,
@@ -12,6 +13,7 @@ import {
     UsersIcon,
     BuildingStorefrontIcon,
     ClipboardDocumentListIcon,
+    InboxStackIcon,
 } from "@heroicons/react/24/outline";
 
 const AdminHeader = () => {
@@ -24,9 +26,16 @@ const AdminHeader = () => {
     const username = user.email || "Admin";
     const role = (user.roles && user.roles.length > 0) ? user.roles[0] : "ADMIN";
 
+    // Auth0 OIDC session (if user signed in via OIDC)
+    const { logout: auth0Logout, isAuthenticated } = useAuth0();
+
     const handleLogout = () => {
         AuthService.logout();
-        navigate("/login");
+        if (isAuthenticated) {
+            auth0Logout({ logoutParams: { returnTo: window.location.origin } });
+        } else {
+            navigate("/login");
+        }
     };
 
     return (
@@ -75,6 +84,12 @@ const AdminHeader = () => {
                             label="Reservations"
                             onClick={() => navigate("/admin/reservations")}
                             active={location.pathname === "/admin/reservations"}
+                        />
+                        <NavIconBtn
+                            icon={<InboxStackIcon className="w-5 h-5" />}
+                            label="Stall Requests"
+                            onClick={() => navigate("/admin/stall-requests")}
+                            active={location.pathname === "/admin/stall-requests"}
                         />
                         <NavIconBtn
                             icon={<UsersIcon className="w-5 h-5" />}
@@ -142,6 +157,12 @@ const AdminHeader = () => {
                             label="Reservations"
                             onClick={() => { navigate("/admin/reservations"); setIsMenuOpen(false); }}
                             active={location.pathname === "/admin/reservations"}
+                        />
+                        <MenuLink
+                            icon={<InboxStackIcon className="w-5 h-5" />}
+                            label="Stall Requests"
+                            onClick={() => { navigate("/admin/stall-requests"); setIsMenuOpen(false); }}
+                            active={location.pathname === "/admin/stall-requests"}
                         />
                         <MenuLink
                             icon={<UsersIcon className="w-5 h-5" />}

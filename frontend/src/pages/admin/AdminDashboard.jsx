@@ -4,6 +4,7 @@ import {
     BuildingStorefrontIcon,
     ClipboardDocumentListIcon,
     UsersIcon,
+    InboxStackIcon,
 } from "@heroicons/react/24/outline";
 
 const cards = [
@@ -27,6 +28,13 @@ const cards = [
         desc: "Add, edit, delete and manage user accounts.",
         icon: <UsersIcon className="w-7 h-7" />,
         color: "bg-emerald-100 text-emerald-700",
+    },
+    {
+        to: "/admin/stall-requests",
+        title: "Vendor Stall Requests",
+        desc: "Review, approve or reject vendor reservation requests.",
+        icon: <InboxStackIcon className="w-7 h-7" />,
+        color: "bg-amber-100 text-amber-700",
     },
 ];
 

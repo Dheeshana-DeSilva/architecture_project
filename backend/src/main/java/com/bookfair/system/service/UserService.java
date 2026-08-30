@@ -189,6 +189,7 @@ public class UserService {
   private UserProfileResponse toAdminResponse(User user) {
     return UserProfileResponse.builder()
         .id(user.getId())
+        .username(user.getEmail()) // email serves as the login username
         .name(user.getName())
         .email(user.getEmail())
         .contactNumber(user.getContactNumber())
@@ -207,6 +208,7 @@ public class UserService {
 
     return UserProfileResponse.builder()
         .id(user.getId())
+        .username(user.getEmail()) // email serves as the login username
         .name(user.getName())
         .email(user.getEmail())
         .contactNumber(user.getContactNumber())

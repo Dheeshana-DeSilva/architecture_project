@@ -8,7 +8,9 @@ import {
   UserCircleIcon,
   ArrowRightIcon,
   BookOpenIcon,
-  CalendarDaysIcon
+  CalendarDaysIcon,
+  BuildingStorefrontIcon,
+  InboxStackIcon,
 } from "@heroicons/react/24/outline";
 
 const Dashboard = () => {
@@ -84,11 +86,50 @@ const Dashboard = () => {
               </div>
             </div>
 
-
+          {/* Quick Action: Stall Reservation Request */}
+          <div
+            onClick={() => navigate("/stall-request")}
+            className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 sm:p-8 cursor-pointer hover:shadow-md hover:border-amber-200 transition group flex flex-col justify-between"
+          >
+            <div>
+              <div className="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <BuildingStorefrontIcon className="w-6 h-6" />
+              </div>
+              <h3 className="text-xl font-bold text-slate-800 mb-2">Request a Stall</h3>
+              <p className="text-slate-500 mb-6">
+                Submit a reservation request for your preferred stall type, size, and exhibition event.
+              </p>
+            </div>
+            <div className="flex items-center text-amber-600 font-semibold group-hover:translate-x-1 transition-transform">
+              <span>Submit Request</span>
+              <ArrowRightIcon className="w-4 h-4 ml-2" />
+            </div>
           </div>
 
-          {/* Info Section */}
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 sm:p-8 flex flex-col md:flex-row items-center gap-8">
+          {/* Quick Action: My Stall Requests */}
+          <div
+            onClick={() => navigate("/my-stall-requests")}
+            className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 sm:p-8 cursor-pointer hover:shadow-md hover:border-violet-200 transition group flex flex-col justify-between"
+          >
+            <div>
+              <div className="w-12 h-12 bg-violet-50 text-violet-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <InboxStackIcon className="w-6 h-6" />
+              </div>
+              <h3 className="text-xl font-bold text-slate-800 mb-2">My Stall Requests</h3>
+              <p className="text-slate-500 mb-6">
+                Track the status of your submitted stall reservation requests — pending, approved, or rejected.
+              </p>
+            </div>
+            <div className="flex items-center text-violet-600 font-semibold group-hover:translate-x-1 transition-transform">
+              <span>View My Requests</span>
+              <ArrowRightIcon className="w-4 h-4 ml-2" />
+            </div>
+          </div>
+
+        </div>
+
+        {/* Info Section */}
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 sm:p-8 flex flex-col md:flex-row items-center gap-8">
             <div className="md:w-1/3 flex justify-center">
               <div className="w-40 h-40 bg-blue-50 rounded-full flex items-center justify-center text-blue-200">
                 <BookOpenIcon className="w-20 h-20 text-blue-800" />

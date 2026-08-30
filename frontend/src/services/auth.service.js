@@ -28,6 +28,25 @@ const login = (email, password) => {
     });
 };
 
+/**
+ * Exchange an Auth0 OIDC access token for the app's own JWT.
+ * The backend validates the Auth0 token via JWKS, auto-provisions
+ * the user if needed, then returns a JwtResponse identical to local login.
+ */
+const oidcSignIn = (accessToken) => {
+  return api
+    .post("/auth/oidc-signin", { accessToken })
+    .then((response) => {
+      if (response.data.token) {
+        localStorage.setItem("user", JSON.stringify(response.data));
+        localStorage.setItem("token", response.data.token);
+        // Notify header/components of user update
+        window.dispatchEvent(new Event("user-updated"));
+      }
+      return response.data;
+    });
+};
+
 const logout = () => {
   localStorage.removeItem("user");
   localStorage.removeItem("token");
@@ -40,8 +59,9 @@ const getCurrentUser = () => {
 const AuthService = {
   register,
   login,
+  oidcSignIn,
   logout,
   getCurrentUser,
 };
 
-export default AuthService;
+export default AuthService;

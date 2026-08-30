@@ -18,6 +18,8 @@ import BookingConfirmation from "./pages/user/BookingConfirmation";
 import HelpCenter from "./pages/public/HelpCenter";
 import GenreSelection from "./pages/user/GenreSelection";
 import About from "./pages/public/About";
+import StallReservationRequest from "./pages/user/StallReservationRequest";
+import MyStallRequests from "./pages/user/MyStallRequests";
 import EmployeeDashboard from "./pages/employee/EmployeeDashboard";
 import EmployeeFloorPlan from "./pages/employee/EmployeeFloorPlan";
 import EmployeeRoute from "./components/routing/EmployeeRoute";
@@ -26,6 +28,7 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminStalls from "./pages/admin/AdminStalls";
 import AdminReservations from "./pages/admin/AdminReservations";
 import AdminUsers from "./pages/admin/AdminUsers";
+import AdminStallRequests from "./pages/admin/AdminStallRequests";
 import AdminProtectedRoute from "./components/routing/AdminProtectedRoute.jsx";
 import EmployeeHeader from "./components/common/EmployeeHeader";
 import { useEffect, useState } from "react";
@@ -67,6 +70,8 @@ function AppContent() {
           <Route path="/help" element={<HelpCenter />} />
           <Route path="/employee" element={<EmployeePanel />} />
           <Route path="/genres" element={<GenreSelection />} />
+          <Route path="/stall-request" element={<StallReservationRequest />} />
+          <Route path="/my-stall-requests" element={<MyStallRequests />} />
         </Route>
 
         {/* ── Admin routes ── */}
@@ -77,6 +82,7 @@ function AppContent() {
             <Route path="/admin/reservations" element={<AdminReservations />} />
             <Route path="/admin/users" element={<AdminUsers />} />
             <Route path="/admin/duties" element={<AdminDutyManagement />} />
+            <Route path="/admin/stall-requests" element={<AdminStallRequests />} />
           </Route>
         </Route>
 
