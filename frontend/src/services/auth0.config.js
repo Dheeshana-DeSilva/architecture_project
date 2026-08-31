@@ -14,10 +14,10 @@
  */
 const auth0Config = {
   // Your Auth0 tenant domain (e.g. dev-xxxx.us.auth0.com)
-  domain: "dev-g1hdov574xyc86yf.us.auth0.com",
+  domain: "YOUR_AUTH0_DOMAIN",
 
   // Client ID from your Auth0 application settings
-  clientId: "nNF1Ow1hjlhhGbdicSwagg4hYF9BkYs0",
+  clientId: "YOUR_AUTH0_CLIENT_ID",
 
   authorizationParams: {
     // Where to redirect after login

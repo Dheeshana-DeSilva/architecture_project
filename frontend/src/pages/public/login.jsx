@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { FiEye, FiEyeOff } from "react-icons/fi";
+import { FcGoogle } from "react-icons/fc";
 import { useAuth0 } from "@auth0/auth0-react";
 import AuthService from "../../services/auth.service";
 import backgroundImg from "../../assets/background.jpg";
@@ -17,11 +18,11 @@ const Login = () => {
   const navigate = useNavigate();
 
   // Auth0 hooks
-  const { loginWithRedirect, logout: auth0Logout, isAuthenticated, getAccessTokenSilently } = useAuth0();
+  const { loginWithRedirect, logout: auth0Logout, isAuthenticated, getIdTokenClaims } = useAuth0();
 
   /**
    * After Auth0 redirects back to the app with a successful OIDC login,
-   * exchange the access token for the app's own JWT.
+   * exchange the ID token for the app's own JWT.
    */
   useEffect(() => {
     const exchangeToken = async () => {
@@ -29,8 +30,10 @@ const Login = () => {
         setOidcLoading(true);
         setError("");
         try {
-          const accessToken = await getAccessTokenSilently();
-          const data = await AuthService.oidcSignIn(accessToken);
+          const claims = await getIdTokenClaims();
+          const idToken = claims.__raw; // The actual signed JWT string
+          
+          const data = await AuthService.oidcSignIn(idToken);
           const roles = Array.isArray(data.roles) ? data.roles : [];
 
           if (roles.includes("ROLE_ADMIN")) {
@@ -41,6 +44,7 @@ const Login = () => {
             navigate("/dashboard");
           }
         } catch (err) {
+          console.error("Auth0 Token Exchange Error:", err);
           setError("Auth0 login succeeded but account setup failed. Please try again.");
           // Clear the Auth0 session so user can retry
           auth0Logout({ logoutParams: { returnTo: window.location.origin } });
@@ -50,7 +54,7 @@ const Login = () => {
       }
     };
     exchangeToken();
-  }, [isAuthenticated, getAccessTokenSilently]);
+  }, [isAuthenticated, getIdTokenClaims]);
 
   // Local email + password login
   const handleLogin = async (e) => {
@@ -76,10 +80,14 @@ const Login = () => {
     }
   };
 
-  // Trigger Auth0 OIDC redirect
-  const handleOidcLogin = () => {
+  // Trigger Google Login via Auth0
+  const handleGoogleLogin = () => {
     setError("");
-    loginWithRedirect();
+    loginWithRedirect({
+      authorizationParams: {
+        connection: 'google-oauth2'
+      }
+    });
   };
 
   return (
@@ -197,16 +205,19 @@ const Login = () => {
               </span>
             </div>
 
-            {/* ── OIDC: Auth0 sign-in button ────────────────────── */}
-            <button
-              id="btn-auth0-login"
-              type="button"
-              onClick={handleOidcLogin}
-              disabled={oidcLoading}
-              className="w-full flex items-center justify-center gap-3 px-4 py-2.5 border-2 border-blue-600 rounded-md text-blue-600 font-bold hover:bg-blue-50 transition disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              {oidcLoading ? "Setting up your account…" : "Continue with Auth0"}
-            </button>
+            {/* ── Social Logins ────────────────────── */}
+            <div className="space-y-3">
+              <button
+                id="btn-google-login"
+                type="button"
+                onClick={handleGoogleLogin}
+                disabled={oidcLoading}
+                className="w-full flex items-center justify-center gap-3 px-4 py-2.5 border border-gray-300 rounded-md text-gray-700 font-bold hover:bg-gray-50 shadow-sm transition disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                <FcGoogle size={20} />
+                {oidcLoading ? "Setting up..." : "Continue with Google"}
+              </button>
+            </div>
 
             {/* Sign-up link */}
             <div className="text-center pt-2">
